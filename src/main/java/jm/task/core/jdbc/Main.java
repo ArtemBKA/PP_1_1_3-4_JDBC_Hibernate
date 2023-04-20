@@ -1,14 +1,19 @@
 package jm.task.core.jdbc;
 
 import jm.task.core.jdbc.model.User;
+import jm.task.core.jdbc.service.UserService;
 import jm.task.core.jdbc.service.UserServiceImpl;
 import jm.task.core.jdbc.util.Util;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
-        UserServiceImpl userService = new UserServiceImpl();
+        UserService userService = new UserServiceImpl();
+        userService.createUsersTable();
+        userService.saveUser("testName", "testLastName", (byte) 14);
+        userService.removeUserById(1L);
         userService.createUsersTable();
         userService.saveUser("Chris", "Cornell", (byte) 52);
         userService.saveUser("Kim", "Thayil", (byte) 53);
