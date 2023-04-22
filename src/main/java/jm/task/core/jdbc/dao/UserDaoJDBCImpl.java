@@ -9,18 +9,28 @@ import java.util.List;
 public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
-        String sql = "CREATE TABLE IF NOT EXISTS userstable (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT" +
-                ", NAME VARCHAR(50)" +
-                ", LAST_NAME VARCHAR(50)" +
-                ", AGE TINYINT)";
+        String sql = """
+            CREATE TABLE IF NOT EXISTS userstable 
+            (id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+            NAME VARCHAR(50),
+            LAST_NAME VARCHAR(50), 
+            AGE TINYINT)
+        """;
         Connection connection = null;
-        Statement statement = null;
+        PreparedStatement statement = null;
         try {
             connection = Util.getConnection();
+            statement = connection.prepareStatement(sql);
             connection.setAutoCommit(false);
-            statement = connection.createStatement();
-            statement.executeUpdate(sql);
-        } catch (SQLException e) {
+            statement.executeUpdate();
+        } catch (Exception e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             throw new RuntimeException(e);
         } finally {
             try {
@@ -28,11 +38,10 @@ public class UserDaoJDBCImpl implements UserDao {
                     statement.close();
                 }
                 if (connection != null) {
-                    connection.rollback();
                     connection.close();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                /*IGNORE*/
             }
         }
     }
@@ -40,13 +49,20 @@ public class UserDaoJDBCImpl implements UserDao {
     public void dropUsersTable() {
         String sql = "DROP TABLE IF EXISTS userstable";
         Connection connection = null;
-        Statement statement = null;
+        PreparedStatement statement = null;
         try {
             connection = Util.getConnection();
+            statement = connection.prepareStatement(sql);
             connection.setAutoCommit(false);
-            statement = connection.createStatement();
-            statement.executeUpdate(sql);
-        } catch (SQLException e) {
+            statement.executeUpdate();
+        } catch (Exception e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             throw new RuntimeException(e);
         } finally {
             try {
@@ -54,11 +70,10 @@ public class UserDaoJDBCImpl implements UserDao {
                     statement.close();
                 }
                 if (connection != null) {
-                    connection.rollback();
                     connection.close();
                 }
             } catch (SQLException e) {
-
+                /* Ignore */
             }
         }
     }
@@ -66,14 +81,10 @@ public class UserDaoJDBCImpl implements UserDao {
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM usersTable";
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet users = null;
-        try {
-            connection = Util.getConnection();
-            connection.setAutoCommit(false);
-            statement = connection.prepareStatement(sql);
-            users = statement.executeQuery();
+
+        try (var connection = Util.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            var users = statement.executeQuery();
             while (users.next()) {
                 list.add(new User(
                         users.getString("name")
@@ -82,21 +93,6 @@ public class UserDaoJDBCImpl implements UserDao {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (users  != null) {
-                    users.close();
-                }
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.rollback();
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
         }
         return list;
     }
@@ -107,15 +103,22 @@ public class UserDaoJDBCImpl implements UserDao {
         PreparedStatement statement = null;
         try {
             connection = Util.getConnection();
-            connection.setAutoCommit(false);
             statement = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
             statement.setString(1, name);
             statement.setString(2, lastName);
             statement.setByte(3, age);
             statement.executeUpdate();
             connection.commit();
             System.out.println("User с именем " + name + " добавлен в базу данных");
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             throw new RuntimeException(e);
         } finally {
             try {
@@ -123,11 +126,10 @@ public class UserDaoJDBCImpl implements UserDao {
                     statement.close();
                 }
                 if (connection != null) {
-                    connection.rollback();
                     connection.close();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                /* Ignore */
             }
         }
     }
@@ -143,7 +145,14 @@ public class UserDaoJDBCImpl implements UserDao {
             statement.setLong(1, id);
             statement.executeUpdate();
             connection.commit();
-        } catch (SQLException e) {
+        }  catch (Exception e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             throw new RuntimeException(e);
         } finally {
             try {
@@ -151,11 +160,10 @@ public class UserDaoJDBCImpl implements UserDao {
                     statement.close();
                 }
                 if (connection != null) {
-                    connection.rollback();
                     connection.close();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                /* Ignore */
             }
         }
     }
@@ -170,7 +178,14 @@ public class UserDaoJDBCImpl implements UserDao {
             statement = connection.prepareStatement(sql);
             statement.executeUpdate();
             connection.commit();
-        } catch (SQLException e) {
+        }  catch (Exception e) {
+            try {
+                if (connection != null) {
+                    connection.rollback();
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             throw new RuntimeException(e);
         } finally {
             try {
@@ -178,11 +193,10 @@ public class UserDaoJDBCImpl implements UserDao {
                     statement.close();
                 }
                 if (connection != null) {
-                    connection.rollback();
                     connection.close();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                /* Ignore */
             }
         }
     }
