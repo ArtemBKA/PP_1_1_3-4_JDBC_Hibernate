@@ -1,5 +1,6 @@
 package jm.task.core.jdbc.util;
 
+import java.util.Hashtable;
 import java.util.Properties;
 import jm.task.core.jdbc.model.User;
 import org.hibernate.SessionFactory;
@@ -17,16 +18,25 @@ public class Util {
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String URL = "jdbc:mysql://localhost:3306/users?useSSL=false";
 
+    static {
+        try {
+            Class.forName(DRIVER);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USERNAME, PASSWORD);
     }
 
     private static SessionFactory sessionFactory;
+
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
-                Configuration configuration = new Configuration();
-                Properties settings = new Properties();
+                var configuration = new Configuration();
+                var settings = new Properties();
 
                 settings.put(Environment.DRIVER, DRIVER);
                 settings.put(Environment.URL, URL);
