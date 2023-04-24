@@ -16,72 +16,41 @@ public class UserDaoJDBCImpl implements UserDao {
             LAST_NAME VARCHAR(50), 
             AGE TINYINT)
         """;
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = Util.getConnection();
-            statement = connection.prepareStatement(sql);
-            connection.setAutoCommit(false);
-            statement.executeUpdate();
+        try (var connection = Util.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            try {
+                connection.setAutoCommit(false);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (Exception ex) {
+                connection.rollback();
+                throw ex;
+            }
         } catch (Exception e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                /*IGNORE*/
-            }
         }
     }
 
     public void dropUsersTable() {
         String sql = "DROP TABLE IF EXISTS userstable";
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = Util.getConnection();
-            statement = connection.prepareStatement(sql);
-            connection.setAutoCommit(false);
-            statement.executeUpdate();
+        try (var connection = Util.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            try {
+                connection.setAutoCommit(false);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (Exception ex) {
+                connection.rollback();
+                throw ex;
+            }
         } catch (Exception e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                /* Ignore */
-            }
         }
     }
 
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM usersTable";
-
         try (var connection = Util.getConnection();
              var statement = connection.prepareStatement(sql)) {
             var users = statement.executeQuery();
@@ -99,105 +68,57 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         String sql = "INSERT INTO usersTable (NAME, LAST_NAME, AGE) VALUES (?, ?, ?)";
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = Util.getConnection();
-            statement = connection.prepareStatement(sql);
-            connection.setAutoCommit(false);
-            statement.setString(1, name);
-            statement.setString(2, lastName);
-            statement.setByte(3, age);
-            statement.executeUpdate();
-            connection.commit();
-            System.out.println("User с именем " + name + " добавлен в базу данных");
+        try (var connection = Util.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            try {
+                connection.setAutoCommit(false);
+                statement.setString(1, name);
+                statement.setString(2, lastName);
+                statement.setByte(3, age);
+                statement.executeUpdate();
+                connection.commit();
+                System.out.println("User с именем " + name + " добавлен в базу данных");
+            } catch (Exception ex) {
+                connection.rollback();
+                throw ex;
+            }
         } catch (Exception e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                /* Ignore */
-            }
         }
     }
 
     public void removeUserById(long id) {
         String sql = "DELETE FROM usersTable WHERE ID = ?";
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = Util.getConnection();
-            connection.setAutoCommit(false);
-            statement = connection.prepareStatement(sql);
-            statement.setLong(1, id);
-            statement.executeUpdate();
-            connection.commit();
-        }  catch (Exception e) {
+        try (var connection = Util.getConnection();
+             var statement = connection.prepareStatement(sql)) {
             try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException ex) {
+                connection.setAutoCommit(false);
+                statement.setLong(1, id);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (Exception ex) {
+                connection.rollback();
                 throw new RuntimeException(ex);
             }
+        }  catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                /* Ignore */
-            }
         }
     }
 
     public void cleanUsersTable() {
         String sql = "TRUNCATE TABLE usersTable";
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = Util.getConnection();
-            connection.setAutoCommit(false);
-            statement = connection.prepareStatement(sql);
-            statement.executeUpdate();
-            connection.commit();
-        }  catch (Exception e) {
+        try (var connection = Util.getConnection();
+             var statement = connection.prepareStatement(sql)) {
             try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                connection.setAutoCommit(false);
+                statement.executeUpdate();
+                connection.commit();
+            } catch (Exception ex) {
+                connection.rollback();
+                throw ex;
             }
+        } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                /* Ignore */
-            }
         }
     }
 }
