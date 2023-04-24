@@ -21,8 +21,6 @@ public class Util {
         return DriverManager.getConnection(URL, USERNAME, PASSWORD);
     }
 
-
-
     private static SessionFactory sessionFactory;
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {

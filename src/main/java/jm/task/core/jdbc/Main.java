@@ -7,13 +7,6 @@ import jm.task.core.jdbc.util.Util;
 import java.sql.SQLException;
 
 public class Main {
-    /**
-     * TEST
-     * TEST
-     * TEST
-     *
-     *
-     * */
     public static void main(String[] args) {
         UserServiceImpl userService = new UserServiceImpl();
         userService.createUsersTable();
